@@ -46,7 +46,6 @@ SubmitButton.addEventListener("click", () => {
 }
             */
             Result.innerHTML = "";
-            // Accordion show big result, Name is the title
             result.result.forEach((item) => {
                 const accordionItem = document.createElement("div");
                 accordionItem.className = "accordion-item";
@@ -68,7 +67,29 @@ SubmitButton.addEventListener("click", () => {
                 accordionBody.className = "accordion-body";
                 const accordionBodyContent = document.createElement("div");
                 accordionBodyContent.className = "accordion-body-content";
-                accordionBodyContent.innerHTML = JSON.stringify(item, null, 4);
+                item.Steps.forEach((step) => {
+                    const card = document.createElement("div");
+                    card.className = "card";
+                    const cardBody = document.createElement("div");
+                    cardBody.className = "card-body";
+                    const cardTitle = document.createElement("h5");
+                    cardTitle.className = "card-title";
+                    cardTitle.innerHTML = step.Hint;
+                    const cardText = document.createElement("p");
+                    cardText.className = "card-text";
+                    cardText.innerHTML = step.Step;
+                    const cardFooter = document.createElement("div");
+                    cardFooter.className = "card-footer";
+                    const cardFooterText = document.createElement("small");
+                    cardFooterText.className = "text-muted";
+                    cardFooterText.innerHTML = step.PreviousExpression + " = " + step.Expression;
+                    cardBody.appendChild(cardTitle);
+                    cardBody.appendChild(cardText);
+                    cardFooter.appendChild(cardFooterText);
+                    card.appendChild(cardBody);
+                    card.appendChild(cardFooter);
+                    accordionBodyContent.appendChild(card);
+                });
                 accordionBody.appendChild(accordionBodyContent);
                 accordionCollapse.appendChild(accordionBody);
                 accordionHeader.appendChild(accordionButton);
