@@ -1,4 +1,11 @@
 name = "math"
-main = "src/index.ts"
+main = "Source/index.ts"
 compatibility_date = "2023-10-30"
 node_compat = true
+
+rules = [
+    { type = "Text", globs = ["./*.js", "./*.html"], fallthrough = true}
+]
+
+[placement]
+mode = "smart"
