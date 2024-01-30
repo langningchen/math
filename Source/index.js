@@ -1,6 +1,5 @@
 const LatexInput = document.getElementById("LatexInput");
 const SubmitButton = document.getElementById("SubmitButton");
-const PreviewContainer = document.getElementById("PreviewContainer");
 const SimpleResult = document.getElementById("SimpleResult");
 const FullResult = document.getElementById("FullResult");
 const RequestAPI = async (Endpoint, Data) => {
@@ -113,6 +112,5 @@ LatexInput.addEventListener("input", () => {
     SimpleResult.innerHTML = "";
     FullResult.innerHTML = "";
     SolveSimpleLatex(LatexInput.value);
-    PreviewContainer.innerHTML = "$$" + LatexInput.value + "$$";
     MathJax.typesetPromise();
 });
