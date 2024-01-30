@@ -26,9 +26,6 @@ const SolveMathProblem = async (Latex: string) => {
 		},
 		body: JSON.stringify({
 			"latexExpression": Latex,
-			"clientInfo": {
-				"mkt": "zh",
-			},
 		}),
 	});
 	Data = await Data.json();
@@ -74,20 +71,33 @@ export default {
 				return new Response("Not found", { status: 404 });
 			}
 		} else if (method === "POST") {
+			var Result = {
+				"Success": true,
+				"Error": "",
+				"Data": {},
+			};
+			try {
 			const { LatexExpression } = await request.json();
 			if (!LatexExpression) {
-				return new Response("Please provide a latex expression", { status: 400 });
+				Result.Success = false;
+				Result.Error = "Please provide a latex expression";
 			}
 			if (path === "/SolveLatex") {
-				return new Response(JSON.stringify({ result: await SolveMathProblem(LatexExpression) }), { status: 200, headers: { "Content-Type": "application/json" } });
+				Result.Data = await SolveMathProblem(LatexExpression);
 			}
 			else if (path === "/SolveSimpleLatex") {
-				return new Response(JSON.stringify({ result: await SolveSimple(LatexExpression) }), { status: 200, headers: { "Content-Type": "application/json" } });
+				Result.Data = await SolveSimple(LatexExpression);
 			}
 			else {
-				console.log(path);
-				return new Response("Not found", { status: 404 });
+				Result.Success = false;
+				Result.Error = "Not found";
 			}
+			}
+			catch (ErrorDetail) {
+				Result.Success = false;
+				Result.Error = ErrorDetail;
+			}
+			return new Response(JSON.stringify(Result), { status: 200, headers: { "Content-Type": "application/json" } });
 		}
 		return new Response("Method not allowed", { status: 405 });
 	},

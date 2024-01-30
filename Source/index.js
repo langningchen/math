@@ -1,40 +1,35 @@
-const SubmitButton = document.getElementById("SubmitButton");
 const LatexInput = document.getElementById("LatexInput");
+const SubmitButton = document.getElementById("SubmitButton");
+const PreviewContainer = document.getElementById("PreviewContainer");
 const SimpleResult = document.getElementById("SimpleResult");
 const FullResult = document.getElementById("FullResult");
-
-MathJax = {
-    loader: {
-        load: [
-            "input/tex-base",
-            "output/chtml",
-        ],
-    },
-    tex: {
-        inlineMath: [
-            ["$", "$"],
-        ],
-        displayMath: [
-            ["$$", "$$"],
-        ],
-        processEscapes: true,
-        processEnvironments: true,
-        packages: { "[+]": ["noerrors"] },
-    },
-};
-
-SubmitButton.addEventListener("click", () => {
-    fetch("/SolveLatex", {
+const RequestAPI = async (Endpoint, Data) => {
+    const Result = await fetch("/" + Endpoint, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({ LatexExpression: LatexInput.value }),
-    })
-        .then(Result => Result.json())
+        body: JSON.stringify(Data),
+    });
+    const JSONResult = await Result.json();
+    if (!JSONResult.Success) {
+        console.log(JSONResult.Error);
+        alert(JSONResult.Error);
+    }
+    return JSONResult.Data;
+};
+const SolveSimpleLatex = (LatexExpression) => {
+    RequestAPI("SolveSimpleLatex", { LatexExpression })
+        .then(Result => {
+            SimpleResult.innerHTML = "$$" + Result + "$$";
+            MathJax.typesetPromise();
+        });
+};
+const SolveLatex = (LatexExpression) => {
+    RequestAPI("SolveLatex", { LatexExpression })
         .then(Result => {
             FullResult.innerHTML = "";
-            Result.result.forEach(Item => {
+            Result.forEach(Item => {
                 const AccordionItem = document.createElement("div");
                 AccordionItem.className = "accordion-item";
                 const AccordionHeader = document.createElement("h2");
@@ -88,35 +83,36 @@ SubmitButton.addEventListener("click", () => {
             });
             MathJax.typesetPromise();
         });
-});
-LatexInput.addEventListener("input", () => {
-    fetch("/SolveSimpleLatex", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ LatexExpression: LatexInput.value }),
-    })
-        .then(Result => Result.json())
-        .then(Result => {
-            MathJax.tex2chtmlPromise(Result.result)
-                .then(MathNode => {
-                    SimpleResult.innerHTML = "";
-                    SimpleResult.appendChild(MathNode);
-                    MathJax.startup.document.clear();
-                    MathJax.startup.document.updateDocument();
-                });
-        });
-});
+};
 
+MathJax = {
+    loader: {
+        load: [
+            "input/tex-base",
+            "output/chtml",
+        ],
+    },
+    tex: {
+        inlineMath: [
+            ["$", "$"],
+        ],
+        displayMath: [
+            ["$$", "$$"],
+        ],
+        processEscapes: true,
+        processEnvironments: true,
+        packages: { "[+]": ["noerrors"] },
+    },
+};
+
+SubmitButton.addEventListener("click", () => {
+    SolveSimpleLatex(LatexInput.value);
+    SolveLatex(LatexInput.value);
+});
 LatexInput.addEventListener("input", () => {
-    const latexExpression = LatexInput.value;
-    const PreviewContainer = document.getElementById("PreviewContainer");
-    PreviewContainer.innerHTML = "";
-    MathJax.tex2chtmlPromise(latexExpression)
-        .then(MathNode => {
-            PreviewContainer.appendChild(MathNode);
-            MathJax.startup.document.clear();
-            MathJax.startup.document.updateDocument();
-        });
+    SimpleResult.innerHTML = "";
+    FullResult.innerHTML = "";
+    SolveSimpleLatex(LatexInput.value);
+    PreviewContainer.innerHTML = "$$" + LatexInput.value + "$$";
+    MathJax.typesetPromise();
 });
