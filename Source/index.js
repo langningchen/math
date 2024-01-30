@@ -10,6 +10,19 @@ MathJax = {
             "output/chtml",
         ],
     },
+    tex: {
+        inlineMath: [
+            ["$", "$"],
+            ["\\(", "\\)"],
+        ],
+        displayMath: [
+            ["$$", "$$"],
+            ["\\[", "\\]"],
+        ],
+        processEscapes: true,
+        processEnvironments: true,
+        packages: { "[+]": ["noerrors"] },
+    },
 };
 
 SubmitButton.addEventListener("click", () => {
@@ -82,7 +95,7 @@ SubmitButton.addEventListener("click", () => {
                     cardFooter.className = "card-footer";
                     const cardFooterText = document.createElement("small");
                     cardFooterText.className = "text-muted";
-                    cardFooterText.innerHTML = step.PreviousExpression + " = " + step.Expression;
+                    cardFooterText.innerHTML = step.PreviousExpression;
                     cardBody.appendChild(cardTitle);
                     cardBody.appendChild(cardText);
                     cardFooter.appendChild(cardFooterText);
@@ -97,6 +110,7 @@ SubmitButton.addEventListener("click", () => {
                 accordionItem.appendChild(accordionCollapse);
                 Result.appendChild(accordionItem);
             });
+            MathJax.typesetPromise();
         });
 });
 LatexInput.addEventListener("input", () => {
