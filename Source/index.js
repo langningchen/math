@@ -111,6 +111,8 @@ SubmitButton.addEventListener("click", () => {
 LatexInput.addEventListener("input", () => {
     SimpleResult.innerHTML = "";
     FullResult.innerHTML = "";
-    SolveSimpleLatex(LatexInput.value);
-    MathJax.typesetPromise();
+    if (LatexInput.value != "") {
+        SolveSimpleLatex(LatexInput.value);
+        MathJax.typesetPromise();
+    }
 });
