@@ -67,6 +67,13 @@ export default {
 			else if (path === "/index.js") {
 				return new Response(js, { status: 200, headers: { "Content-Type": "application/javascript" } });
 			}
+			else if (path.startsWith("/mathlive/")) {
+				const url = new URL(request.url);
+				url.host = "unpkg.com";
+				url.port = "80";
+				console.log(url.toString());
+				return fetch(url.toString());
+			}
 			else {
 				return new Response("Not found", { status: 404 });
 			}
