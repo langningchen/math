@@ -39,7 +39,7 @@ const SolveMathProblem = async (Latex: string) => {
 		throw Data["errorMessage"];
 	}
 	Data = Data["actions"];
-	var Result = [];
+	var FullResult = [];
 	for (var i = 0; i < Data.length; i++) {
 		var Temp = {};
 		Temp["Name"] = Data[i]["actionName"];
@@ -54,9 +54,9 @@ const SolveMathProblem = async (Latex: string) => {
 			Temp2["PreviousExpression"] = Steps[j]["steps"][0]["prevExpression"];
 			Temp["Steps"].push(Temp2);
 		}
-		Result.push(Temp);
+		FullResult.push(Temp);
 	}
-	return Result;
+	return FullResult;
 };
 
 export default {

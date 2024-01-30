@@ -1,7 +1,7 @@
 const SubmitButton = document.getElementById("SubmitButton");
 const LatexInput = document.getElementById("LatexInput");
 const SimpleResult = document.getElementById("SimpleResult");
-const Result = document.getElementById("Result");
+const FullResult = document.getElementById("FullResult");
 
 MathJax = {
     loader: {
@@ -13,11 +13,9 @@ MathJax = {
     tex: {
         inlineMath: [
             ["$", "$"],
-            ["\\(", "\\)"],
         ],
         displayMath: [
             ["$$", "$$"],
-            ["\\[", "\\]"],
         ],
         processEscapes: true,
         processEnvironments: true,
@@ -33,82 +31,60 @@ SubmitButton.addEventListener("click", () => {
         },
         body: JSON.stringify({ LatexExpression: LatexInput.value }),
     })
-        .then((response) => response.json())
-        .then((result) => {
-            /*
-            {
-    "result": [
-        {
-            "Name": "求值",
-            "Answer": "$2$",
-            "Steps": [
-                {
-                    "Hint": "将两项相加。",
-                    "Step": "$1$ 与 $1$ 相加，得到 $2$。",
-                    "Expression": "$$2$$ ",
-                    "PreviousExpression": "$$1+1$$"
-                }
-            ]
-        },
-        {
-            "Name": "因式分解",
-            "Answer": "$2$",
-            "Steps": []
-        }
-    ]
-}
-            */
-            Result.innerHTML = "";
-            result.result.forEach((item) => {
-                const accordionItem = document.createElement("div");
-                accordionItem.className = "accordion-item";
-                const accordionHeader = document.createElement("h2");
-                accordionHeader.className = "accordion-header";
-                const accordionButton = document.createElement("button");
-                accordionButton.className = "accordion-button";
-                accordionButton.type = "button";
-                accordionButton.setAttribute("data-bs-toggle", "collapse");
-                accordionButton.setAttribute("data-bs-target", `#collapse${item.Name}`);
-                accordionButton.setAttribute("aria-expanded", "true");
-                accordionButton.setAttribute("aria-controls", `collapse${item.Name}`);
-                accordionButton.innerHTML = item.Name;
-                const accordionCollapse = document.createElement("div");
-                accordionCollapse.id = `collapse${item.Name}`;
-                accordionCollapse.className = "accordion-collapse collapse show";
-                accordionCollapse.setAttribute("aria-labelledby", `heading${item.Name}`);
-                const accordionBody = document.createElement("div");
-                accordionBody.className = "accordion-body";
-                const accordionBodyContent = document.createElement("div");
-                accordionBodyContent.className = "accordion-body-content";
-                item.Steps.forEach((step) => {
-                    const card = document.createElement("div");
-                    card.className = "card";
-                    const cardBody = document.createElement("div");
-                    cardBody.className = "card-body";
-                    const cardTitle = document.createElement("h5");
-                    cardTitle.className = "card-title";
-                    cardTitle.innerHTML = step.Hint;
-                    const cardText = document.createElement("p");
-                    cardText.className = "card-text";
-                    cardText.innerHTML = step.Step;
-                    const cardFooter = document.createElement("div");
-                    cardFooter.className = "card-footer";
-                    const cardFooterText = document.createElement("small");
-                    cardFooterText.className = "text-muted";
-                    cardFooterText.innerHTML = step.PreviousExpression;
-                    cardBody.appendChild(cardTitle);
-                    cardBody.appendChild(cardText);
-                    cardFooter.appendChild(cardFooterText);
-                    card.appendChild(cardBody);
-                    card.appendChild(cardFooter);
-                    accordionBodyContent.appendChild(card);
+        .then(Result => Result.json())
+        .then(Result => {
+            FullResult.innerHTML = "";
+            Result.result.forEach(Item => {
+                const AccordionItem = document.createElement("div");
+                AccordionItem.className = "accordion-item";
+                const AccordionHeader = document.createElement("h2");
+                AccordionHeader.className = "accordion-header";
+                const AccordionButton = document.createElement("button");
+                AccordionButton.className = "accordion-button";
+                AccordionButton.type = "button";
+                AccordionButton.setAttribute("data-bs-toggle", "collapse");
+                AccordionButton.setAttribute("data-bs-target", `#collapse${Item.Name}`);
+                AccordionButton.setAttribute("aria-expanded", "true");
+                AccordionButton.setAttribute("aria-controls", `collapse${Item.Name}`);
+                AccordionButton.innerHTML = Item.Name;
+                const AccordionCollapse = document.createElement("div");
+                AccordionCollapse.id = `collapse${Item.Name}`;
+                AccordionCollapse.className = "accordion-collapse collapse show";
+                AccordionCollapse.setAttribute("aria-labelledby", `heading${Item.Name}`);
+                const AccordionBody = document.createElement("div");
+                AccordionBody.className = "accordion-body";
+                const AccordionBodyContent = document.createElement("div");
+                AccordionBodyContent.className = "accordion-body-content";
+                AccordionBodyContent.innerHTML = Item.Answer;
+                Item.Steps.forEach(Step => {
+                    const Card = document.createElement("div");
+                    Card.className = "card";
+                    const CardBody = document.createElement("div");
+                    CardBody.className = "card-body";
+                    const CardTitle = document.createElement("h5");
+                    CardTitle.className = "card-title";
+                    CardTitle.innerHTML = Step.Hint;
+                    const CardText = document.createElement("p");
+                    CardText.className = "card-text";
+                    CardText.innerHTML = Step.PreviousExpression;
+                    const CardFooter = document.createElement("div");
+                    CardFooter.className = "card-footer";
+                    const CardFooterText = document.createElement("small");
+                    CardFooterText.className = "text-muted";
+                    CardFooterText.innerHTML = Step.Step;
+                    CardBody.appendChild(CardTitle);
+                    CardBody.appendChild(CardText);
+                    CardFooter.appendChild(CardFooterText);
+                    Card.appendChild(CardBody);
+                    Card.appendChild(CardFooter);
+                    AccordionBodyContent.appendChild(Card);
                 });
-                accordionBody.appendChild(accordionBodyContent);
-                accordionCollapse.appendChild(accordionBody);
-                accordionHeader.appendChild(accordionButton);
-                accordionItem.appendChild(accordionHeader);
-                accordionItem.appendChild(accordionCollapse);
-                Result.appendChild(accordionItem);
+                AccordionBody.appendChild(AccordionBodyContent);
+                AccordionCollapse.appendChild(AccordionBody);
+                AccordionHeader.appendChild(AccordionButton);
+                AccordionItem.appendChild(AccordionHeader);
+                AccordionItem.appendChild(AccordionCollapse);
+                FullResult.appendChild(AccordionItem);
             });
             MathJax.typesetPromise();
         });
@@ -121,32 +97,26 @@ LatexInput.addEventListener("input", () => {
         },
         body: JSON.stringify({ LatexExpression: LatexInput.value }),
     })
-        .then((response) => response.json())
-        .then((result) => {
-            MathJax.tex2chtmlPromise(result.result)
-                .then((node) => {
+        .then(Result => Result.json())
+        .then(Result => {
+            MathJax.tex2chtmlPromise(Result.result)
+                .then(MathNode => {
                     SimpleResult.innerHTML = "";
-                    SimpleResult.appendChild(node);
+                    SimpleResult.appendChild(MathNode);
                     MathJax.startup.document.clear();
                     MathJax.startup.document.updateDocument();
-                })
-                .catch((error) => {
-                    console.error(error);
                 });
         });
 });
 
 LatexInput.addEventListener("input", () => {
     const latexExpression = LatexInput.value;
-    const previewContainer = document.getElementById("PreviewContainer");
-    previewContainer.innerHTML = "";
+    const PreviewContainer = document.getElementById("PreviewContainer");
+    PreviewContainer.innerHTML = "";
     MathJax.tex2chtmlPromise(latexExpression)
-        .then((node) => {
-            previewContainer.appendChild(node);
+        .then(MathNode => {
+            PreviewContainer.appendChild(MathNode);
             MathJax.startup.document.clear();
             MathJax.startup.document.updateDocument();
-        })
-        .catch((error) => {
-            console.error(error);
         });
 });
