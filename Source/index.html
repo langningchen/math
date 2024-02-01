@@ -3,20 +3,39 @@
 
 <head>
     <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcdn.net/ajax/libs/bootstrap-icons/1.11.0/font/bootstrap-icons.min.css" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 
 <body>
-    <div class="container">
-        <h1>Math calculator</h1>
-        <math-field class="col-12 mb-1" id="LatexInput"></math-field>
-        <br>
-        <button type="submit" id="SubmitButton" class="btn btn-primary">Submit</button>
-        <hr>
-        SimpleResult: <div id="SimpleResult"></div>
-        <hr>
-        FullResult: <div id="FullResult" class="accordion"></div>
-    </div>
+    <header>
+        <nav class="navbar navbar-expand-lg bg-body-tertiary">
+            <div class="container">
+                <a class="navbar-brand" href="#">Math solver</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#NavbarContent">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="NavbarContent">
+                    <form class="d-flex">
+                        <button class="btn btn-secondary" type="button" id="SwitchThemeButton">
+                            <i></i>
+                        </button>
+                    </form>
+                </div>
+                </div>
+                </nav>
+                </header>
+                <main>
+                    <div class="container mt-2">
+                        <math-field class="col-12 mb-1" id="LatexInput"></math-field>
+                        <br>
+                        <button type="submit" id="SubmitButton" class="btn btn-primary">Submit</button>
+                        <hr>
+                        SimpleResult: <div id="SimpleResult"></div>
+                        <hr>
+                        FullResult: <div id="FullResult" class="accordion"></div>
+                    </div>
+    </main>
     <script src="index.js"></script>
     <script src="mathlive/dist/mathlive.min.js"></script>
     <script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.1/js/bootstrap.min.js"></script>

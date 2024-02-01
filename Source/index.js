@@ -1,7 +1,32 @@
+const SwitchThemeButton = document.getElementById("SwitchThemeButton");
 const LatexInput = document.getElementById("LatexInput");
 const SubmitButton = document.getElementById("SubmitButton");
 const SimpleResult = document.getElementById("SimpleResult");
 const FullResult = document.getElementById("FullResult");
+
+const SetTheme = (Theme) => {
+    if (Theme === "dark") {
+        document.body.dataset.bsTheme = "dark";
+        SwitchThemeButton.children[0].className = "bi bi-moon-stars-fill";
+    }
+    else if (Theme === "light") {
+        document.body.dataset.bsTheme = "light";
+        SwitchThemeButton.children[0].className = "bi bi-brightness-high-fill";
+    }
+    localStorage.setItem("Theme", Theme);
+};
+const AddLoadingSpinner = (Element) => {
+    const LoadingSpinner = document.createElement("div");
+    LoadingSpinner.className = "spinner-border spinner-border-sm";
+    LoadingSpinner.setAttribute("role", "status");
+    LoadingSpinner.setAttribute("aria-hidden", "true");
+    Element.appendChild(LoadingSpinner);
+}
+const RemoveLoadingSpinner = (Element) => {
+    if (Element.lastChild.className === "spinner-border spinner-border-sm") {
+        Element.removeChild(Element.lastChild);
+    }
+}
 const RequestAPI = async (Endpoint, Data) => {
     const Result = await fetch("/" + Endpoint, {
         method: "POST",
@@ -44,10 +69,15 @@ const SolveLatex = (LatexExpression) => {
                 AccordionCollapse.className = "accordion-collapse collapse show";
                 const AccordionBody = document.createElement("div");
                 AccordionBody.className = "accordion-body";
-                const AccordionBodyContent = document.createElement("div");
-                AccordionBodyContent.className = "accordion-body-content";
-                AccordionBodyContent.innerHTML = Item.Answer;
+                const AccordionBodyText = document.createElement("p");
+                AccordionBodyText.classList.add("mb-2");
+                AccordionBodyText.innerHTML = Item.Answer;
+                AccordionBody.appendChild(AccordionBodyText);
+                const TemplateAccordion = document.createElement("div");
+                TemplateAccordion.className = "accordion";
                 Item.TemplateSteps.forEach(TemplateSteps => {
+                    const TemplateAccordionItem = document.createElement("div");
+                    TemplateAccordionItem.className = "accordion-item";
                     const TemplateStepsHeader = document.createElement("div");
                     TemplateStepsHeader.className = "accordion-header";
                     const TemplateStepsButton = document.createElement("button");
@@ -86,10 +116,11 @@ const SolveLatex = (LatexExpression) => {
                         TemplateStepsBody.appendChild(Card);
                     });
                     TemplateStepsCollapse.appendChild(TemplateStepsBody);
-                    AccordionBodyContent.appendChild(TemplateStepsHeader);
-                    AccordionBodyContent.appendChild(TemplateStepsCollapse);
+                    TemplateAccordionItem.appendChild(TemplateStepsHeader);
+                    TemplateAccordionItem.appendChild(TemplateStepsCollapse);
+                    TemplateAccordion.appendChild(TemplateAccordionItem);
                 });
-                AccordionBody.appendChild(AccordionBodyContent);
+                AccordionBody.appendChild(TemplateAccordion);
                 AccordionCollapse.appendChild(AccordionBody);
                 AccordionHeader.appendChild(AccordionButton);
                 AccordionItem.appendChild(AccordionHeader);
@@ -120,15 +151,30 @@ MathJax = {
     },
 };
 
-SubmitButton.addEventListener("click", () => {
-    SolveSimpleLatex(LatexInput.value);
-    SolveLatex(LatexInput.value);
-});
+SwitchThemeButton.onclick = () => {
+    if (document.body.dataset.bsTheme === "dark") {
+        SetTheme("light");
+    }
+    else if (document.body.dataset.bsTheme === "light") {
+        SetTheme("dark");
+    }
+}
 LatexInput.addEventListener("input", () => {
     SimpleResult.innerHTML = "";
     FullResult.innerHTML = "";
     if (LatexInput.value != "") {
         SolveSimpleLatex(LatexInput.value);
-        MathJax.typesetPromise();
     }
 });
+SubmitButton.addEventListener("click", () => {
+    SimpleResult.innerHTML = "";
+    FullResult.innerHTML = "";
+    SubmitButton.disabled = true;
+    AddLoadingSpinner(SubmitButton);
+    SolveSimpleLatex(LatexInput.value);
+    SolveLatex(LatexInput.value);
+    SubmitButton.disabled = false;
+    RemoveLoadingSpinner(SubmitButton);
+});
+
+SetTheme(localStorage.getItem("Theme") || (window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light");
