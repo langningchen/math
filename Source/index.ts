@@ -59,15 +59,22 @@ const SolveMathProblem = async (Latex: string) => {
 		var Temp = {};
 		Temp["Name"] = Data[i]["actionName"];
 		Temp["Answer"] = Data[i]["solution"];
-		Temp["Steps"] = [];
-		var Steps = Data[i]["templateSteps"];
-		for (var j = 0; j < Steps.length; j++) {
-			var Temp2 = {};
-			Temp2["Hint"] = Steps[j]["steps"][0]["hint"];
-			Temp2["Step"] = Steps[j]["steps"][0]["step"];
-			Temp2["Expression"] = Steps[j]["steps"][0]["expression"];
-			Temp2["PreviousExpression"] = Steps[j]["steps"][0]["prevExpression"];
-			Temp["Steps"].push(Temp2);
+		Temp["TemplateSteps"] = [];
+		var TemplateSteps = Data[i]["templateSteps"];
+		for (var j = 0; j < TemplateSteps.length; j++) {
+			var Steps = TemplateSteps[j]["steps"];
+			var Temp2 = {
+				"Name": TemplateSteps[j]["templateName"],
+				"Steps": [],
+			}
+			for (var k = 0; k < Steps.length; k++) {
+				var Temp3 = {};
+				Temp3["Hint"] = Steps[k]["hint"];
+				Temp3["Step"] = Steps[k]["step"];
+				Temp3["Expression"] = Steps[k]["expression"];
+				Temp2.Steps.push(Temp3);
+			}
+			Temp["TemplateSteps"].push(Temp2);
 		}
 		FullResult.push(Temp);
 	}
