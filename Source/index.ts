@@ -19,7 +19,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import html from "./index.html";
 import js from "./index.js";
 
-const SolveSimple = async (Latex: string) => {
+const SolveSimple = async (Latex: string, Language: string) => {
 	var Data = await fetch("https://mathsolver.microsoft.com/cameraexp/api/v1/solvesimplelatex", {
 		method: "POST",
 		headers: {
@@ -27,6 +27,9 @@ const SolveSimple = async (Latex: string) => {
 		},
 		body: JSON.stringify({
 			"latexExpression": Latex,
+			"clientInfo": {
+				"mkt": Language,
+			}
 		}),
 	});
 	Data = await Data.json();
@@ -36,7 +39,7 @@ const SolveSimple = async (Latex: string) => {
 	}
 	return Data;
 }
-const SolveMathProblem = async (Latex: string) => {
+const SolveMathProblem = async (Latex: string, Language: string) => {
 	var Data = await fetch("https://mathsolver.microsoft.com/cameraexp/api/v1/solvelatex", {
 		method: "POST",
 		headers: {
@@ -44,6 +47,9 @@ const SolveMathProblem = async (Latex: string) => {
 		},
 		body: JSON.stringify({
 			"latexExpression": Latex,
+			"clientInfo": {
+				"mkt": Language,
+			}
 		}),
 	});
 	Data = await Data.json();
@@ -109,21 +115,22 @@ export default {
 				"Data": {},
 			};
 			try {
-			const { LatexExpression } = await request.json();
-			if (!LatexExpression) {
-				Result.Success = false;
-				Result.Error = "Please provide a latex expression";
-			}
-			if (path === "/SolveLatex") {
-				Result.Data = await SolveMathProblem(LatexExpression);
-			}
-			else if (path === "/SolveSimpleLatex") {
-				Result.Data = await SolveSimple(LatexExpression);
-			}
-			else {
-				Result.Success = false;
-				Result.Error = "Not found";
-			}
+				const { LatexExpression, Language } = await request.json();
+				if (!LatexExpression) {
+					Result.Success = false;
+					Result.Error = "Please provide a latex expression";
+				}
+				if (path === "/SolveLatex") {
+					Result.Data = await SolveMathProblem(LatexExpression, Language || "en");
+				}
+				else if (path === "/SolveSimpleLatex") {
+					Result.Data = await SolveSimple(LatexExpression, Language || "en");
+				}
+				else {
+					Result.Success = false;
+					Result.Error = "Not found";
+				}
+				console.log(Result);
 			}
 			catch (ErrorDetail) {
 				Result.Success = false;

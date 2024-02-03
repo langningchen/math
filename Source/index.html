@@ -20,21 +20,25 @@
                         <button class="btn btn-secondary" type="button" id="SwitchThemeButton">
                             <i></i>
                         </button>
+                        <select class="form-select ms-1" id="LanguageSelect">
+                            <option value="en">English</option>
+                            <option value="zh">Chinese</option>
+                        </select>
                     </form>
                 </div>
+            </div>
+            </nav>
+            </header>
+            <main>
+                <div class="container mt-2">
+                    <math-field class="col-12 mb-1" id="LatexInput"></math-field>
+                    <br>
+                    <button type="submit" id="SubmitButton" class="btn btn-primary">Submit</button>
+                    <hr>
+                    SimpleResult: <div id="SimpleResult"></div>
+                    <hr>
+                    FullResult: <div id="FullResult" class="accordion"></div>
                 </div>
-                </nav>
-                </header>
-                <main>
-                    <div class="container mt-2">
-                        <math-field class="col-12 mb-1" id="LatexInput"></math-field>
-                        <br>
-                        <button type="submit" id="SubmitButton" class="btn btn-primary">Submit</button>
-                        <hr>
-                        SimpleResult: <div id="SimpleResult"></div>
-                        <hr>
-                        FullResult: <div id="FullResult" class="accordion"></div>
-                    </div>
     </main>
     <script src="index.js"></script>
     <script src="mathlive/dist/mathlive.min.js"></script>

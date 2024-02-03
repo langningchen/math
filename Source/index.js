@@ -1,9 +1,13 @@
 const SwitchThemeButton = document.getElementById("SwitchThemeButton");
+const LanguageSelect = document.getElementById("LanguageSelect");
 const LatexInput = document.getElementById("LatexInput");
 const SubmitButton = document.getElementById("SubmitButton");
 const SimpleResult = document.getElementById("SimpleResult");
 const FullResult = document.getElementById("FullResult");
 
+const UTF8ToBase64 = (UTF8String) => {
+    return btoa(unescape(encodeURIComponent(UTF8String)));
+}
 const SetTheme = (Theme) => {
     if (Theme === "dark") {
         document.body.dataset.bsTheme = "dark";
@@ -15,6 +19,10 @@ const SetTheme = (Theme) => {
     }
     localStorage.setItem("Theme", Theme);
 };
+const SetLanguage = (Language) => {
+    LanguageSelect.value = Language;
+    localStorage.setItem("Language", Language);
+}
 const AddLoadingSpinner = (Element) => {
     const LoadingSpinner = document.createElement("div");
     LoadingSpinner.className = "spinner-border spinner-border-sm";
@@ -42,15 +50,15 @@ const RequestAPI = async (Endpoint, Data) => {
     }
     return JSONResult.Data;
 };
-const SolveSimpleLatex = (LatexExpression) => {
-    RequestAPI("SolveSimpleLatex", { LatexExpression })
+const SolveSimpleLatex = (LatexExpression, Language) => {
+    RequestAPI("SolveSimpleLatex", { LatexExpression, Language })
         .then(Result => {
             SimpleResult.innerHTML = "$$" + Result + "$$";
             MathJax.typesetPromise();
         });
 };
-const SolveLatex = (LatexExpression) => {
-    RequestAPI("SolveLatex", { LatexExpression })
+const SolveLatex = (LatexExpression, Language) => {
+    RequestAPI("SolveLatex", { LatexExpression, Language })
         .then(Result => {
             FullResult.innerHTML = "";
             Result.forEach(Item => {
@@ -62,10 +70,10 @@ const SolveLatex = (LatexExpression) => {
                 AccordionButton.className = "accordion-button";
                 AccordionButton.type = "button";
                 AccordionButton.setAttribute("data-bs-toggle", "collapse");
-                AccordionButton.setAttribute("data-bs-target", `#collapse${btoa(Item.Name)}`);
+                AccordionButton.setAttribute("data-bs-target", `#collapse${UTF8ToBase64(Item.Name)}`);
                 AccordionButton.innerHTML = Item.Name;
                 const AccordionCollapse = document.createElement("div");
-                AccordionCollapse.id = `collapse${btoa(Item.Name)}`;
+                AccordionCollapse.id = `collapse${UTF8ToBase64(Item.Name)}`;
                 AccordionCollapse.className = "accordion-collapse collapse show";
                 const AccordionBody = document.createElement("div");
                 AccordionBody.className = "accordion-body";
@@ -84,11 +92,11 @@ const SolveLatex = (LatexExpression) => {
                     TemplateStepsButton.className = "accordion-button collapsed";
                     TemplateStepsButton.type = "button";
                     TemplateStepsButton.setAttribute("data-bs-toggle", "collapse");
-                    TemplateStepsButton.setAttribute("data-bs-target", `#collapse${btoa(TemplateSteps.Name)}`);
+                    TemplateStepsButton.setAttribute("data-bs-target", `#collapse${UTF8ToBase64(TemplateSteps.Name)}`);
                     TemplateStepsButton.innerHTML = TemplateSteps.Name;
                     TemplateStepsHeader.appendChild(TemplateStepsButton);
                     const TemplateStepsCollapse = document.createElement("div");
-                    TemplateStepsCollapse.id = `collapse${btoa(TemplateSteps.Name)}`;
+                    TemplateStepsCollapse.id = `collapse${UTF8ToBase64(TemplateSteps.Name)}`;
                     TemplateStepsCollapse.className = "accordion-collapse collapse";
                     const TemplateStepsBody = document.createElement("div");
                     TemplateStepsBody.className = "accordion-body";
@@ -151,19 +159,22 @@ MathJax = {
     },
 };
 
-SwitchThemeButton.onclick = () => {
+SwitchThemeButton.addEventListener("click", () => {
     if (document.body.dataset.bsTheme === "dark") {
         SetTheme("light");
     }
     else if (document.body.dataset.bsTheme === "light") {
         SetTheme("dark");
     }
-}
+});
+LanguageSelect.addEventListener("change", () => {
+    SetLanguage(LanguageSelect.value);
+});
 LatexInput.addEventListener("input", () => {
     SimpleResult.innerHTML = "";
     FullResult.innerHTML = "";
     if (LatexInput.value != "") {
-        SolveSimpleLatex(LatexInput.value);
+        SolveSimpleLatex(LatexInput.value, LanguageSelect.value);
     }
 });
 SubmitButton.addEventListener("click", () => {
@@ -171,10 +182,11 @@ SubmitButton.addEventListener("click", () => {
     FullResult.innerHTML = "";
     SubmitButton.disabled = true;
     AddLoadingSpinner(SubmitButton);
-    SolveSimpleLatex(LatexInput.value);
-    SolveLatex(LatexInput.value);
+    SolveSimpleLatex(LatexInput.value, LanguageSelect.value);
+    SolveLatex(LatexInput.value, LanguageSelect.value);
     SubmitButton.disabled = false;
     RemoveLoadingSpinner(SubmitButton);
 });
 
 SetTheme(localStorage.getItem("Theme") || (window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light");
+SetLanguage(localStorage.getItem("Language") || navigator.language.split("-")[0] || "en");
