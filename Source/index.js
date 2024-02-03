@@ -110,12 +110,12 @@ const SolveLatex = (LatexExpression, Language) => {
                         CardTitle.innerHTML = Step.Hint;
                         const CardText = document.createElement("p");
                         CardText.className = "card-text";
-                        CardText.innerHTML = Step.Expression;
+                        CardText.innerHTML = Step.Step;
                         const CardFooter = document.createElement("div");
                         CardFooter.className = "card-footer";
                         const CardFooterText = document.createElement("small");
                         CardFooterText.className = "text-muted";
-                        CardFooterText.innerHTML = Step.Step;
+                        CardFooterText.innerHTML = Step.Expression;
                         CardBody.appendChild(CardTitle);
                         CardBody.appendChild(CardText);
                         CardFooter.appendChild(CardFooterText);
