@@ -1,4 +1,3 @@
-const SwitchThemeButton = document.getElementById("SwitchThemeButton");
 const LanguageSelect = document.getElementById("LanguageSelect");
 const LatexInput = document.getElementById("LatexInput");
 const SubmitButton = document.getElementById("SubmitButton");
@@ -11,11 +10,9 @@ const UTF8ToBase64 = (UTF8String) => {
 const SetTheme = (Theme) => {
     if (Theme === "dark") {
         document.body.dataset.bsTheme = "dark";
-        SwitchThemeButton.children[0].className = "bi bi-moon-stars-fill";
     }
     else if (Theme === "light") {
         document.body.dataset.bsTheme = "light";
-        SwitchThemeButton.children[0].className = "bi bi-brightness-high-fill";
     }
     localStorage.setItem("Theme", Theme);
 };
@@ -60,6 +57,7 @@ const SolveSimpleLatex = (LatexExpression, Language) => {
         });
 };
 const SolveLatex = (LatexExpression, Language) => {
+    SimpleResult.innerHTML = "";
     AddLoadingSpinner(FullResult);
     RequestAPI("SolveLatex", { LatexExpression, Language })
         .then(Result => {
@@ -163,14 +161,6 @@ MathJax = {
     },
 };
 
-SwitchThemeButton.addEventListener("click", () => {
-    if (document.body.dataset.bsTheme === "dark") {
-        SetTheme("light");
-    }
-    else if (document.body.dataset.bsTheme === "light") {
-        SetTheme("dark");
-    }
-});
 LanguageSelect.addEventListener("change", () => {
     SetLanguage(LanguageSelect.value);
 });
