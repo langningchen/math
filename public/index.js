@@ -4,18 +4,6 @@ const SubmitButton = document.getElementById("SubmitButton");
 const SimpleResult = document.getElementById("SimpleResult");
 const FullResult = document.getElementById("FullResult");
 
-const UTF8ToBase64 = (UTF8String) => {
-    return btoa(unescape(encodeURIComponent(UTF8String)));
-}
-const SetTheme = (Theme) => {
-    if (Theme === "dark") {
-        document.body.dataset.bsTheme = "dark";
-    }
-    else if (Theme === "light") {
-        document.body.dataset.bsTheme = "light";
-    }
-    localStorage.setItem("Theme", Theme);
-};
 const SetLanguage = (Language) => {
     LanguageSelect.value = Language;
     localStorage.setItem("Language", Language);
@@ -35,110 +23,29 @@ const RemoveLoadingSpinner = (Element) => {
 const RequestAPI = async (Endpoint, Data) => {
     const Result = await fetch("/" + Endpoint, {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json", },
         body: JSON.stringify(Data),
     });
     const JSONResult = await Result.json();
-    if (!JSONResult.Success) {
-        console.log(JSONResult.Error);
-        alert(JSONResult.Error);
-    }
+    if (!JSONResult.Success) { throw new Error(JSONResult.Error); }
     return JSONResult.Data;
 };
-const SolveSimpleLatex = (LatexExpression, Language) => {
-    AddLoadingSpinner(SimpleResult);
-    RequestAPI("SolveSimpleLatex", { LatexExpression, Language })
-        .then(Result => {
-            RemoveLoadingSpinner(SimpleResult);
-            SimpleResult.innerHTML = "$$" + Result + "$$";
-            MathJax.typesetPromise();
-        });
-};
-const SolveLatex = (LatexExpression, Language) => {
-    SimpleResult.innerHTML = "";
-    AddLoadingSpinner(FullResult);
-    RequestAPI("SolveLatex", { LatexExpression, Language })
-        .then(Result => {
-            RemoveLoadingSpinner(FullResult);
-            FullResult.innerHTML = "";
-            Result.forEach(Item => {
-                const AccordionItem = document.createElement("div");
-                AccordionItem.className = "accordion-item";
-                const AccordionHeader = document.createElement("h2");
-                AccordionHeader.className = "accordion-header";
-                const AccordionButton = document.createElement("button");
-                AccordionButton.className = "accordion-button";
-                AccordionButton.type = "button";
-                AccordionButton.setAttribute("data-bs-toggle", "collapse");
-                AccordionButton.setAttribute("data-bs-target", `#collapse${UTF8ToBase64(Item.Name)}`);
-                AccordionButton.innerHTML = Item.Name;
-                const AccordionCollapse = document.createElement("div");
-                AccordionCollapse.id = `collapse${UTF8ToBase64(Item.Name)}`;
-                AccordionCollapse.className = "accordion-collapse collapse show";
-                const AccordionBody = document.createElement("div");
-                AccordionBody.className = "accordion-body";
-                const AccordionBodyText = document.createElement("p");
-                AccordionBodyText.classList.add("mb-2");
-                AccordionBodyText.innerHTML = Item.Answer;
-                AccordionBody.appendChild(AccordionBodyText);
-                const TemplateAccordion = document.createElement("div");
-                TemplateAccordion.className = "accordion";
-                Item.TemplateSteps.forEach(TemplateSteps => {
-                    const TemplateAccordionItem = document.createElement("div");
-                    TemplateAccordionItem.className = "accordion-item";
-                    const TemplateStepsHeader = document.createElement("div");
-                    TemplateStepsHeader.className = "accordion-header";
-                    const TemplateStepsButton = document.createElement("button");
-                    TemplateStepsButton.className = "accordion-button collapsed";
-                    TemplateStepsButton.type = "button";
-                    TemplateStepsButton.setAttribute("data-bs-toggle", "collapse");
-                    TemplateStepsButton.setAttribute("data-bs-target", `#collapse${UTF8ToBase64(TemplateSteps.Name)}`);
-                    TemplateStepsButton.innerHTML = TemplateSteps.Name;
-                    TemplateStepsHeader.appendChild(TemplateStepsButton);
-                    const TemplateStepsCollapse = document.createElement("div");
-                    TemplateStepsCollapse.id = `collapse${UTF8ToBase64(TemplateSteps.Name)}`;
-                    TemplateStepsCollapse.className = "accordion-collapse collapse";
-                    const TemplateStepsBody = document.createElement("div");
-                    TemplateStepsBody.className = "accordion-body";
-                    TemplateSteps.Steps.forEach(Step => {
-                        const Card = document.createElement("div");
-                        Card.className = "card mb-2";
-                        const CardBody = document.createElement("div");
-                        CardBody.className = "card-body";
-                        const CardTitle = document.createElement("h5");
-                        CardTitle.className = "card-title";
-                        CardTitle.innerHTML = Step.Hint;
-                        const CardText = document.createElement("p");
-                        CardText.className = "card-text";
-                        CardText.innerHTML = Step.Step;
-                        const CardFooter = document.createElement("div");
-                        CardFooter.className = "card-footer";
-                        const CardFooterText = document.createElement("small");
-                        CardFooterText.className = "text-muted";
-                        CardFooterText.innerHTML = Step.Expression;
-                        CardBody.appendChild(CardTitle);
-                        CardBody.appendChild(CardText);
-                        CardFooter.appendChild(CardFooterText);
-                        Card.appendChild(CardBody);
-                        Card.appendChild(CardFooter);
-                        TemplateStepsBody.appendChild(Card);
-                    });
-                    TemplateStepsCollapse.appendChild(TemplateStepsBody);
-                    TemplateAccordionItem.appendChild(TemplateStepsHeader);
-                    TemplateAccordionItem.appendChild(TemplateStepsCollapse);
-                    TemplateAccordion.appendChild(TemplateAccordionItem);
-                });
-                AccordionBody.appendChild(TemplateAccordion);
-                AccordionCollapse.appendChild(AccordionBody);
-                AccordionHeader.appendChild(AccordionButton);
-                AccordionItem.appendChild(AccordionHeader);
-                AccordionItem.appendChild(AccordionCollapse);
-                FullResult.appendChild(AccordionItem);
-            });
-            MathJax.typesetPromise();
-        });
+const createAccordionItem = (name, content, isCollapsed = false) => {
+    const UTF8ToBase64 = (UTF8String) => { return btoa(unescape(encodeURIComponent(UTF8String))); }
+    return `
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button ${isCollapsed ? "collapsed" : ""}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${UTF8ToBase64(name)}">
+                    ${name}
+                </button>
+            </h2>
+            <div id="collapse${UTF8ToBase64(name)}" class="accordion-collapse collapse ${isCollapsed ? "" : "show"}">
+                <div class="accordion-body">
+                    ${content}
+                </div>
+            </div>
+        </div>
+    `;
 };
 
 MathJax = {
@@ -161,26 +68,58 @@ MathJax = {
     },
 };
 
-LanguageSelect.addEventListener("change", () => {
-    SetLanguage(LanguageSelect.value);
-});
+LanguageSelect.addEventListener("change", () => { SetLanguage(LanguageSelect.value); });
 LatexInput.addEventListener("input", () => {
-    SimpleResult.innerHTML = "";
-    FullResult.innerHTML = "";
+    SubmitButton.disabled = LatexInput.value == "";
     if (LatexInput.value != "") {
-        SolveSimpleLatex(LatexInput.value, LanguageSelect.value);
+        SimpleResult.innerHTML = FullResult.innerHTML = "";
+        AddLoadingSpinner(SimpleResult);
+        RequestAPI("SolveSimpleLatex", {
+            LatexExpression: LatexInput.value,
+            Language: LanguageSelect.value
+        }).then(Result => {
+            SimpleResult.innerHTML = "$$" + Result + "$$";
+            MathJax.typesetPromise();
+        }).catch(error => {
+            SimpleResult.innerHTML = error;
+        }).finally(() => {
+            RemoveLoadingSpinner(SimpleResult);
+        });
     }
 });
 SubmitButton.addEventListener("click", () => {
-    SimpleResult.innerHTML = "";
-    FullResult.innerHTML = "";
-    SubmitButton.disabled = true;
-    AddLoadingSpinner(SubmitButton);
-    SolveSimpleLatex(LatexInput.value, LanguageSelect.value);
-    SolveLatex(LatexInput.value, LanguageSelect.value);
-    SubmitButton.disabled = false;
-    RemoveLoadingSpinner(SubmitButton);
+    SimpleResult.innerHTML = FullResult.innerHTML = "";
+    AddLoadingSpinner(FullResult);
+    RequestAPI("SolveLatex", {
+        LatexExpression: LatexInput.value,
+        Language: LanguageSelect.value
+    }).then(Result => {
+        FullResult.innerHTML = Result.map(Item =>
+            createAccordionItem(Item.Name, `<p class="mb-2">${Item.Answer}</p>` +
+                Item.TemplateSteps.map(templateStep =>
+                    createAccordionItem(templateStep.Name, templateStep.Steps.map((step) =>
+                        `
+                                <div class="card mb-2">
+                                    <div class="card-body">
+                                        <h5 class="card-title">${step.Hint}</h5>
+                                        <div>${step.Expression}</div>
+                                    </div>
+                                    <div class="card-footer">
+                                        ${step.Step}
+                                    </div>
+                                </div>
+                            `
+                    ).join(""), true)
+                ).join("")
+            )
+        ).join("");
+        MathJax.typesetPromise();
+    }).catch(error => {
+        FullResult.innerHTML = error;
+    }).finally(() => {
+        RemoveLoadingSpinner(FullResult);
+    });
 });
 
-SetTheme(localStorage.getItem("Theme") || (window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light");
+document.body.dataset.bsTheme = ((window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light");
 SetLanguage(localStorage.getItem("Language") || navigator.language.split("-")[0] || "en");
