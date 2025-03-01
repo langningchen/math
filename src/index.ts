@@ -16,9 +16,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 **********************************************************************/
 
-import html from "./index.html";
-import js from "./index.js";
-
 const SolveSimple = async (Latex: string, Language: string) => {
 	var Data = await fetch("https://mathsolver.microsoft.com/cameraexp/api/v1/solvesimplelatex", {
 		method: "POST",
@@ -42,46 +39,44 @@ const SolveSimple = async (Latex: string, Language: string) => {
 const SolveMathProblem = async (Latex: string, Language: string) => {
 	var Data = await fetch("https://mathsolver.microsoft.com/cameraexp/api/v1/solvelatex", {
 		method: "POST",
-		headers: {
-			"content-type": "application/json",
-		},
+		headers: { "content-type": "application/json", },
 		body: JSON.stringify({
 			"latexExpression": Latex,
-			"clientInfo": {
-				"mkt": Language,
-			}
+			"clientInfo": { "mkt": Language, }
 		}),
 	});
 	Data = await Data.json();
 	Data = JSON.parse(Data["results"][0]["tags"][0]["actions"][0]["customData"]);
 	Data = JSON.parse(Data["previewText"]);
-	if (Data["errorMessage"] !== "") { throw Data["errorMessage"]; }
+	if (Data["errorMessage"] !== "") { throw new Error(Data["errorMessage"]); }
 	Data = Data["mathSolverResult"];
-	if (Data["errorMessage"] !== "") { throw Data["errorMessage"]; }
+	if (Data["errorMessage"] !== "") { throw new Error(Data["errorMessage"]); }
 	Data = Data["actions"];
-	var FullResult = [];
-	for (var i = 0; i < Data.length; i++) {
-		var Temp = {};
-		Temp["Name"] = Data[i]["actionName"];
-		Temp["Answer"] = Data[i]["solution"];
-		Temp["TemplateSteps"] = [];
-		var TemplateSteps = Data[i]["templateSteps"];
-		for (var j = 0; j < TemplateSteps.length; j++) {
-			var Steps = TemplateSteps[j]["steps"];
-			var Temp2 = {
-				"Name": TemplateSteps[j]["templateName"],
-				"Steps": [],
+	if (!Array.isArray(Data)) { throw new Error("Expected an array of actions"); }
+	var FullResult = new Array();
+	for (const i of Data) {
+		var Results = {
+			Name: i["actionName"],
+			Answer: i["solution"],
+			TemplateSteps: new Array(),
+		};
+		var TemplateSteps = i["templateSteps"];
+		for (const j of TemplateSteps) {
+			var Steps = j["steps"];
+			var Result = {
+				Name: j["templateName"],
+				Steps: new Array(),
 			}
-			for (var k = 0; k < Steps.length; k++) {
-				var Temp3 = {};
-				Temp3["Hint"] = Steps[k]["hint"];
-				Temp3["Step"] = Steps[k]["step"];
-				Temp3["Expression"] = Steps[k]["expression"];
-				Temp2.Steps.push(Temp3);
+			for (const k of Steps) {
+				Result.Steps.push({
+					Hint: k["hint"],
+					Step: k["step"],
+					Expression: k["expression"],
+				});
 			}
-			Temp["TemplateSteps"].push(Temp2);
+			Results["TemplateSteps"].push(Result);
 		}
-		FullResult.push(Temp);
+		FullResult.push(Results);
 	}
 	return FullResult;
 };
@@ -91,20 +86,13 @@ export default {
 		const { method } = request;
 		const path = new URL(request.url).pathname;
 		if (method === "GET") {
-			if (path === "/") {
-				return new Response(html, { status: 200, headers: { "Content-Type": "text/html" } });
-			}
-			else if (path === "/index.js") {
-				return new Response(js, { status: 200, headers: { "Content-Type": "application/javascript" } });
-			}
-			else if (path.startsWith("/mathlive/")) {
+			if (path.startsWith("/mathlive/")) {
 				const url = new URL(request.url);
 				url.host = "unpkg.com";
 				url.port = "80";
 				console.log(url.toString());
 				return fetch(url.toString());
-			}
-			else {
+			} else {
 				return new Response("Not found", { status: 404 });
 			}
 		} else if (method === "POST") {
