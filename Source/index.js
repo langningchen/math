@@ -51,15 +51,19 @@ const RequestAPI = async (Endpoint, Data) => {
     return JSONResult.Data;
 };
 const SolveSimpleLatex = (LatexExpression, Language) => {
+    AddLoadingSpinner(SimpleResult);
     RequestAPI("SolveSimpleLatex", { LatexExpression, Language })
         .then(Result => {
+            RemoveLoadingSpinner(SimpleResult);
             SimpleResult.innerHTML = "$$" + Result + "$$";
             MathJax.typesetPromise();
         });
 };
 const SolveLatex = (LatexExpression, Language) => {
+    AddLoadingSpinner(FullResult);
     RequestAPI("SolveLatex", { LatexExpression, Language })
         .then(Result => {
+            RemoveLoadingSpinner(FullResult);
             FullResult.innerHTML = "";
             Result.forEach(Item => {
                 const AccordionItem = document.createElement("div");
