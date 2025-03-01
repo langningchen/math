@@ -55,10 +55,9 @@ const SolveMathProblem = async (Latex: string, Language: string) => {
 	Data = await Data.json();
 	Data = JSON.parse(Data["results"][0]["tags"][0]["actions"][0]["customData"]);
 	Data = JSON.parse(Data["previewText"]);
-	Data = Data["mathSolverResult"]
-	if (Data["errorMessage"] !== "") {
-		throw Data["errorMessage"];
-	}
+	if (Data["errorMessage"] !== "") { throw Data["errorMessage"]; }
+	Data = Data["mathSolverResult"];
+	if (Data["errorMessage"] !== "") { throw Data["errorMessage"]; }
 	Data = Data["actions"];
 	var FullResult = [];
 	for (var i = 0; i < Data.length; i++) {
