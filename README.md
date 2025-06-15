@@ -1,5 +1,8 @@
 # Math
 
+> [!warning]
+> The Microsoft Math Solver will be retired soon! See [#5](https://github.com/langningchen/math/issues/5) for details.
+
 ## Introduction
 
 A math solver server using the API of [Microsoft Math Solver](https://math.microsoft.com/).
